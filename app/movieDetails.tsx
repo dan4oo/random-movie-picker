@@ -16,7 +16,7 @@ interface movieDetails {
 export default function MovieDetails() {
     const { id } = useLocalSearchParams();
     const [movieDetails, setMovieDetails] = useState<movieDetails>()
-    console.log(id)
+    //console.log(id)
 
     useEffect(() => {
         fetchMoveDetails()
@@ -26,7 +26,7 @@ export default function MovieDetails() {
         const url = `https://api.themoviedb.org/3/movie/${id}?api_key=${apiKey}&language=en-US`
         const response = await fetch(url);
         const data = await response.json();
-        console.log(JSON.stringify(data, null, 2));
+        //console.log(JSON.stringify(data, null, 2));
         setMovieDetails(data)
     }
     return(

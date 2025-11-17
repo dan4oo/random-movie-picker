@@ -38,33 +38,53 @@ export default function Index() {
     }
   };
 
+  const chooseRandomMovies = (data: any) => {
+    const choosenMovies: Movie[] = [];
+        
+    if(data && Array.isArray(data.results)) {
+      for (let index = 0; index < 3; index++) {
+        const randomMovie = Math.floor(Math.random() * data.results.length);
+
+        console.log(data.results[randomMovie].title)
+        console.log(choosenMovies.length)
+        console.log(data.results[randomMovie].poster_path)
+        if (choosenMovies.some(choosenMovies => choosenMovies.title === data.results[randomMovie].title)) {
+          console.log("movie already is in the list");
+          index--;
+        } else {
+          choosenMovies.push(data.results[randomMovie]);
+        }
+      }
+      setMovie(choosenMovies)
+    } else {
+      console.log("no data is fetched")
+    }
+  }
+
   const fetchMovies = async () => {
     const randomPage = Math.floor(Math.random() * 5) + 1;
 
-    try {
-      const url = `https://api.themoviedb.org/3/discover/movie?api_key=${apiKey}&with_genres=${selectedGenre}&language=en-US&sort_by=popularity.desc&page=${randomPage}`;
-      const response = await fetch(url);
-      const data = await response.json();
+    if(selectedGenre){
+      try {
+        const url = `https://api.themoviedb.org/3/discover/movie?api_key=${apiKey}&with_genres=${selectedGenre}&language=en-US&sort_by=popularity.desc&page=${randomPage}`;
+        const response = await fetch(url);
+        const data = await response.json();
 
-      setMovie([])
+        // data.results.forEach(index => {
+        //   console.log(index.poster_path)
+        // });
+        chooseRandomMovies(data);
 
-      if(data && Array.isArray(data.results)) {
-        for (let index = 0; index < 3; index++) {
-          const randomMovie = Math.floor(Math.random() * data.results.length);
-          setMovie(prev => [...prev, data.results[randomMovie]]);
-        }
-      } else {
-        console.log("no data is fetched")
+      } catch (error) {
+        console.error('Error fetching movies:', error);
       }
-    } catch (error) {
-      console.error('Error fetching movies:', error);
+    } else {
+      alert("Choose a genre!");
     }
   };
 
   return (
-    <ScrollView
-      style={styles.mainView}
-    >
+    <ScrollView>
       <Dropdown
         style={styles.genresDropdown}
         containerStyle={styles.genresDropdownContainer}
@@ -79,7 +99,9 @@ export default function Index() {
       />
       <Pressable
         style={styles.button}
-        onPress={fetchMovies}
+        onPress={() => {
+          fetchMovies();
+        }}
       >
         <Text style={{ fontSize: 20 }}>Get Movies</Text>
       </Pressable>
@@ -92,8 +114,12 @@ export default function Index() {
               <Text style={styles.movieTitle}>{movie.title}</Text>
               <Link href={{ pathname: "/movieDetails", params: { id: movie.id } }}>
                 <Image
-                  source={{ uri: `https://image.tmdb.org/t/p/w500${movie.poster_path}` }}
-                  style={{ width: 200, height: 300, borderRadius: 10 }}
+                  source={
+                    movie.poster_path
+                      ? { uri: `https://image.tmdb.org/t/p/w500${movie.poster_path}` }
+                      : require("../assets/images/defaultPoster.png")
+                  }
+                  style={ styles.moviePoster }
                 />
               </Link>
             </View>
@@ -106,46 +132,68 @@ export default function Index() {
 
 const styles = StyleSheet.create({
   movieTitle: {
+    marginBottom: 10,
     fontSize: 30,
     fontWeight: "bold",
-    alignSelf: "center"
-  },
-  movieOverview: {
-    fontSize: 20
-  },
-  mainView: {
-    //justifyContent: "center",
-    //alignItems: "center",
+    alignSelf: "center",
+    textAlign: "center"
   },
   button: {
     width: "80%",
     alignSelf: "center",
     alignItems: "center",
-    margin: 10,
+    marginTop: 10,
     backgroundColor: "lightblue",
     borderRadius: 10,
     padding: 10,
+
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
   },
   genresDropdown: {
     backgroundColor: "white",
     margin: 30,
-    borderWidth: 1,
     padding: 10,
     borderRadius: 8,
-    width: "80%",
-    alignSelf: "center"
+    width: "90%",
+    height: 50,
+    alignSelf: "center",
+
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
   },
   genresDropdownContainer: {
-    width: "80%",
+    width: "90%",
+    //marginTop: -10,
+
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    borderBottomStartRadius: 10,
+    borderBottomEndRadius: 10,
   },
   movieView: {
-    //flex: 1,
+    flex: 1,
     alignSelf: "center",
     alignItems: "center",
     margin: 20,
     backgroundColor: "lightgray",
     padding: 20,
     borderRadius: 10,
-    width: "80%"
+    width: "80%",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+  },
+  moviePoster: {
+    width: 300, 
+    height: 400, 
+    borderRadius: 10,
   }
 })
